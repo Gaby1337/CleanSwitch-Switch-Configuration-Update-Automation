@@ -1,68 +1,92 @@
 <h1 align="center">CleanSwitch ⚡</h1>
-<p align="center">
-  Bulk VLAN cleanup & switch configuration automation over SSH using PowerShell.
-</p>
+<p align="center">Professional PowerShell-based automation for bulk VLAN cleanup on Layer 2 network switches.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Language-PowerShell%205.1%2B-blue?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Protocol-SSH-green?style=for-the-badge">
+  <img src="https://img.shields.io/badge/PowerShell-5.1%2B-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Tested%20On-PSVersion%205.1.20348.4163-success?style=for-the-badge">
+  <img src="https://img.shields.io/badge/SSH-Automation-green?style=for-the-badge">
   <img src="https://img.shields.io/badge/Module-Posh--SSH-lightgrey?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Scope-L2/L3%20Switches-orange?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Data-No%20real%20IPs%20or%20passwords-purple?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Switch%20Type-Layer%202-orange?style=for-the-badge">
 </p>
+
+---
 
 ## 🚀 Overview
 
-CleanSwitch is a standalone PowerShell automation script that performs bulk VLAN cleanup across multiple switches using SSH. It is designed for network engineers who need a fast, safe and repeatable method to remove a VLAN and associated configuration from many devices at once.
+**CleanSwitch** is a fully automated PowerShell script designed for **Layer 2 switch environments** that require centralized, repeatable VLAN cleanup through SSH.
 
-The script performs:
+The script was **tested and validated** using:
 
-- SSH connection to each switch
-- Auto–privilege elevation (enable)
-- Pre-check validation
-- VLAN removal
-- Trunk port cleanup
-- DHCP snooping cleanup
-- Configuration save
-- Post-check validation
-- Per-device logging
+```
+PSVersionTable
 
-## 🔧 Features
+Name                           Value
+----                           -----
+PSVersion                      5.1.20348.4163
+```
 
-| Functionality | Description |
-|--------------|-------------|
-| SSH automation | Uses Posh-SSH and ShellStream for full control over CLI. |
-| Auto privilege elevation | Detects when enable is required and handles password prompts. |
-| IOS-style CLI support | Works with both short (g0/1) and long (GigabitEthernet0/1) interface formats. |
-| Full logging | Saves all switch output per device and creates a global run log. |
-| Safe & repeatable | Pre- and post-checks ensure consistent execution. |
+It performs safe, structured actions across multiple switches:
+- SSH authentication
+- Privilege elevation (`enable`)
+- Pre-cleanup validation
+- VLAN removal and interface cleanup
+- DHCP snooping removal
+- Post-cleanup validation
+- Per-device audit logging
 
-## 📁 Repository contents
+---
+
+## 🔧 Core Features
+
+| Feature | Description |
+|--------|-------------|
+| **Layer 2 Compatibility** | Designed and tested specifically for Layer 2 switches. |
+| **SSH Automation** | Uses Posh-SSH + ShellStream for complete CLI control. |
+| **Privilege Detection** | Auto-detects if `enable` is required and supplies credentials. |
+| **Fallback Interface Support** | Supports both short `g0/1` and full `GigabitEthernet0/1` formats. |
+| **Detailed Logging** | Per-device output logs + master execution log. |
+| **Fully Self-Contained** | No external CSV, JSON or config files required. |
+
+---
+
+## 📁 Repository Structure
 
 ```
 .
 ├── wipe_switches.ps1    # Main script
 ├── README.md            # Documentation
-└── outputs/             # Auto-created log folder
+└── outputs/             # Automatically generated logs
 ```
 
-## 🔒 Credentials & security notice
+---
 
-This repository contains no real IP addresses, usernames or passwords.
+## 🔒 Credentials Notice
 
-## ⚙️ How to configure the script
+This repository contains **no real IPs, usernames or passwords**.  
+The script inside the repo includes placeholders only.
 
-### Add your switch login
+You must customize your private local copy with real credentials **outside GitHub**.
 
-```
+---
+
+## ⚙️ Configuration
+
+### 1️⃣ Set your switch credentials
+
+```powershell
 $User = '<switch-username>'
 $SecurePass = ConvertTo-SecureString '<switch-password>' -AsPlainText -Force
 $Cred = [pscredential]::new($User, $SecurePass)
+$PlainPass = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+    [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePass)
+)
 ```
 
-### Add your management IPs
+### 2️⃣ Add Layer 2 switch management IPs
 
-```
+The script uses direct inline configuration:
+
+```powershell
 # TOATE IP-URILE
 $IPs = @(
     "127.0.0.1",
@@ -70,40 +94,100 @@ $IPs = @(
 )
 ```
 
-Replace these placeholders with real management IPs.
+You may add as many as needed.
 
-### VLAN ID & interfaces
+### 3️⃣ VLAN and interfaces
 
-The current script removes VLAN 12. Replace 12 if needed.
+The script currently removes **VLAN 12** and cleans:
 
-## ▶️ How to run
+- `g0/1`
+- `g0/2`
+- fallback: `GigabitEthernet0/1`, `GigabitEthernet0/2`
 
-```
+To change VLAN ID, replace all occurrences of `12`.
+
+---
+
+## ▶️ Running the Script
+
+```powershell
 cd C:\Path\To\CleanSwitch
 .\wipe_switches.ps1
 ```
 
-## 📄 Logs & output
+The script will:
 
-Log files are automatically saved in the outputs/ folder.
+- Connect to each IP in `$IPs`
+- Remove the specified VLAN
+- Clean trunk ports
+- Remove DHCP snooping for that VLAN
+- Save logs in `outputs/`
 
-## 🛡️ Safety recommendations
+---
 
-- Test on 1–2 switches first
-- Keep production version private
-- Backup running config before mass cleanup
+## 📄 Logging System
 
-## 🔮 Future improvements
+### Per-device logs:
 
-- Multi-VLAN support
-- Parallel SSH sessions
-- Importing IPs from CSV
+```
+outputs/<IP>_<timestamp>.txt
+```
+
+Each includes:
+- Pre-check state
+- Executed configuration
+- Fallback interface actions (if needed)
+- Post-check validation
+
+### Global master log:
+
+```
+run_<timestamp>.log
+```
+
+Example:
+
+```
+[18:22:01] 172.16.10.11 OK -> .\outputsz.16.10.11_20251113_182200.txt
+[18:22:03] 172.16.10.12 ERROR: Connection timed out
+```
+
+---
+
+## 🛡️ Safety Recommendations
+
+- Test on **one switch first** before bulk execution
+- Keep production version **private**
+- Validate logs after each run
+- Ensure SSH access + correct AAA configuration
+- Consider taking backups (`copy run tftp:`)
+
+---
+
+## 🔮 Planned Enhancements
+
+- Multi-VLAN cleanup
+- Multi-threaded execution
+- CSV-based IP import
+- Dry-run mode (no configuration applied)
+
+---
 
 ## 📝 License
 
+```
 MIT License
+```
+
+---
 
 ## 🤝 Contributions
 
-Open to bug reports, feature requests and pull requests.
+Pull requests & feature ideas are welcome.
 
+---
+
+## 🧩 Notes
+
+This repository intentionally includes **only generic placeholder data**.  
+Never commit real switch IPs, usernames, or passwords.
