@@ -63,7 +63,7 @@ Name                           Value
 PSVersion                      5.1.20348.4163
 ```
 
-> 🔐 All values inside this public version (IP addresses, credentials) are placeholders.
+
 
 ---
 
