@@ -49,23 +49,48 @@ This repository contains **no real IPs or credentials** — it is a safe public 
 
 ---
 
-## 🚀 Quickstart
+## ## 🚦 Quickstart
 
-Acum merge normal, fără gri.
+### 1️⃣ Install dependencies  
+(Open PowerShell as Administrator)
 
----
+```powershell
+Install-Module Posh-SSH -Scope CurrentUser -Force
+```
+Configure the script
 
-# 💯 Te rog să copiezi FIX asta și să înlocuiești la tine.
+Open wipe_switches.ps1 and update:
 
----
+SSH username → CHANGE_ME_USER
 
-# 🔥 Dacă tot nu merge → atunci știu problema 2: GitHub a interpretat ceva greșit.
+SSH password → CHANGE_ME_PASSWORD
 
-Atunci fac eu TOT README-ul FINAL complet într-o singură bucată verificată 100%.
+VLAN ID → replace 2999 with your target VLAN
 
-Vrei:
+Replace dummy IP list (192.0.2.x) with your real management IPs
 
-### 🔵 Varianta FINALĂ completă într-o singură bucată verificată 100%?
-Scrie: **„DA, fă README final complet verificat”**.
+Run CleanSwitch:
+.\wipe_switches.ps1
 
-Și ți-l dau PERFECT.
+After execution:
+
+Detailed per-device logs will be available in outputs/
+
+A global run log file will be generated with a timestamp
+
+📜 How the Script Works (Step-by-Step)
+🔧 1. SSH session
+
+For each switch in the IP list, the script creates:
+
+an SSH session (New-SSHSession)
+
+an interactive shell stream (New-SSHShellStream)
+
+🔧 2. Enter privileged EXEC
+
+The script sends:
+terminal length 0
+enable   (if required)
+
+
