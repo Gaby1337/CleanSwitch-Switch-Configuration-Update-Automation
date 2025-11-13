@@ -15,9 +15,7 @@
 
 ---
 
-<p align="center">
-  <img src="assets/demo-session.png" width="720"/>
-</p>
+
 
 ## ✨ Concept
 
