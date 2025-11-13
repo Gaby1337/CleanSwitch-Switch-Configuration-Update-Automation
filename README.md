@@ -34,7 +34,6 @@ All IPs, VLANs and credentials in this repo are dummy values — clean, safe, no
 
 ## 🧠 Architecture
 
-```text
 +---------------------------+
 |   Switch IP list (demo)   |
 +-------------+-------------+
@@ -48,6 +47,7 @@ All IPs, VLANs and credentials in this repo are dummy values — clean, safe, no
               v
     outputs/<device>_timestamp.txt
     run_YYYYMMDD_HHMMSS.log
+
 
 🚀 Quickstart
 git clone https://github.com/YOUR-USER/CleanSwitch-Automated-VLAN-Purge.git
