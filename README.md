@@ -48,3 +48,54 @@ All IPs, VLANs and credentials in this repo are dummy values — clean, safe, no
               v
     outputs/<device>_timestamp.txt
     run_YYYYMMDD_HHMMSS.log
+
+🚀 Quickstart
+git clone https://github.com/YOUR-USER/CleanSwitch-Automated-VLAN-Purge.git
+cd CleanSwitch-Automated-VLAN-Purge
+
+Install required module:
+Install-Module Posh-SSH -Scope CurrentUser -Force
+
+Configure:
+
+Open wipe_switches.ps1 and edit:
+
+CHANGE_ME_USER
+
+CHANGE_ME_PASSWORD
+
+VLAN 2999 → your real VLAN
+
+Replace example IPs (192.0.2.x) with your actual management IPs
+
+Run:
+.\wipe_switches.ps1
+
+
+Logs will appear in the outputs/ directory.
+
+🔍 What the Script Does
+
+For each switch:
+
+Creates SSH session
+
+Enters privileged mode
+
+Runs pre-checks
+
+Removes VLAN
+
+Updates trunk ports
+
+Disables DHCP snooping
+
+Writes memory
+
+Runs post-checks
+
+Logs everything
+
+If short interface names fail, the script retries using
+GigabitEthernet0/1 and GigabitEthernet0/2.
+
