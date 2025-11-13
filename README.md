@@ -49,3 +49,25 @@ All IPs, credentials and VLAN IDs in this public repo are **dummy values** – i
             |
             v
    outputs\*.txt   +   run_YYYYMMDD_HHMMSS.log
+
+   git clone https://github.com/YOUR-USER/CleanSwitch-Automated-VLAN-Purge.git
+cd CleanSwitch-Automated-VLAN-Purge
+
+
+Open wipe_switches.ps1
+
+Change:
+
+CHANGE_ME_USER → your SSH username
+
+CHANGE_ME_PASSWORD → your SSH password (or handle via secure vault)
+
+VLAN 2999 → the VLAN you actually want to remove
+
+replace the 192.0.2.x example IPs with your own management IPs
+
+Make sure you have PowerShell 5.1+ and Posh-SSH:
+
+Install-Module Posh-SSH -Scope CurrentUser -Force
+.\wipe_switches.ps1
+
