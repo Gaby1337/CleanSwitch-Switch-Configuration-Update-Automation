@@ -8,79 +8,78 @@ PowerShell-based automation for bulk VLAN cleanup and switch configuration updat
 
 ---
 
-## Overview
+## 📚 Table of Contents
 
-**CleanSwitch** is a PowerShell script used to clean up a specific VLAN and its
-related configuration on multiple switches over SSH.
-
-For each switch in the list, the script:
-
-- connects over SSH using Posh-SSH  
-- enters privileged EXEC mode (if needed)  
-- shows the current state (VLAN, interface config, DHCP snooping)  
-- removes a specific VLAN from the switch and from trunk interfaces  
-- disables DHCP snooping for that VLAN  
-- saves the configuration and runs post-check commands  
-- writes all CLI output to per-device text files in `outputs/`.
-
-> **Note:** In this public example the VLAN ID is `2999`.  
-> In your real environment you can adjust it to whatever VLAN you need.
+- [Overview](#-overview)
+- [Features](#-features)
+- [How It Works](#-how-it-works)
+- [Repository Structure](#-repository-structure)
+- [Requirements](#-requirements)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [Output & Logging](#-output--logging)
+- [Security Notes](#-security-notes)
+- [Roadmap / Ideas](#-roadmap--ideas)
+- [License](#-license)
 
 ---
 
-## Requirements
+## 🔎 Overview
 
-- Windows PowerShell 5.1 or later  
-- [Posh-SSH](https://www.powershellgallery.com/packages/Posh-SSH) module
+**CleanSwitch** is a PowerShell-based automation script used to clean up a specific VLAN and its related configuration on multiple switches over SSH.
 
-Install Posh-SSH:
+It is designed as a **template / example project** for network engineers who want to:
+- remove a VLAN from many switches in bulk
+- update trunk interfaces
+- disable DHCP snooping for that VLAN
+- keep a per-device log of all CLI output
 
-```powershell
-Install-Module Posh-SSH -Scope CurrentUser -Force
+> **Note:** In this public example the VLAN ID is `2999`.  
+> In your real environment you can change it to whatever VLAN you need.
 
+---
 
-scripts/
-  wipe_switches.ps1       # Main automation script
+## ✨ Features
 
-config/
-  switch_list.example.txt # Example switch list (optional)
+- Bulk configuration changes on multiple switches over SSH
+- VLAN removal (from configuration and trunk interfaces)
+- DHCP snooping disable for the selected VLAN
+- Optional pre-check and post-check commands
+- Per-switch CLI logs saved to files
+- Simple structure that can be adapted to any environment
+- No real management IPs or credentials stored in the repository
 
-outputs/
-  (created at runtime, contains logs and per-switch output)
+---
 
-README.md
-LICENSE
-.gitignore
+## ⚙️ How It Works
 
+For each switch in the list, the script:
 
-Usage (concept)
+1. Connects over SSH using the **Posh-SSH** module  
+2. (Optionally) enters privileged EXEC / enable mode  
+3. Runs **pre-check** commands (show VLAN, interfaces, DHCP snooping)  
+4. Removes the target VLAN from:
+   - VLAN database
+   - access ports (if needed)
+   - trunk interfaces
+5. Disables DHCP snooping for that VLAN  
+6. Runs **post-check** commands to verify the change  
+7. Saves all CLI output to a per-device text file in the `outputs/` folder  
 
-Edit scripts/wipe_switches.ps1 locally and replace:
+---
 
-the placeholder password (CHANGE_ME_PASSWORD)
+## 📁 Repository Structure
 
-the example management IP addresses in $IPs
+Planned / example structure for the project:
 
-(optionally) the VLAN ID (2999).
-
-Run the script from PowerShell:
-
-cd scripts
-.\wipe_switches.ps1
-
-
-The script will:
-
-connect to each switch in $IPs
-
-apply the configuration changes
-
-store per-switch output in the outputs directory
-
-log the run in run_YYYYMMDD_HHMMSS.log.
-
-Security
-
-No real credentials or IP addresses are stored in this public repository.
-
-Do not commit your real management IPs or passwords.
+```text
+CleanSwitch-Switch-Configuration-Update-Automation/
+  scripts/
+    wipe_switches.ps1        # Main PowerShell automation script
+  config/
+    switch_list.example.txt  # Example switch list (no real IPs)
+  outputs/
+    ...                      # Generated at runtime, contains logs
+  README.md
+  LICENSE
+  .gitignore                 # Keeps logs and real configs out of Git
