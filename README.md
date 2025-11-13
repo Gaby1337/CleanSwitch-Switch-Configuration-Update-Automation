@@ -1,125 +1,143 @@
-⚡ CleanSwitch
-Automated Switch Configuration Cleanup
-<div align="center">
+# ⚡ CleanSwitch
+### Automated Switch Configuration Cleanup
 
-A modern, reliable, fully-automated PowerShell tool for mass VLAN cleanup and switch configuration maintenance via SSH.
+A fully automated PowerShell tool designed to perform safe, repeatable VLAN and configuration cleanup across multiple switches using SSH.
 
-<br> <img src="https://img.shields.io/badge/PowerShell-5.1+-blue?style=for-the-badge"> <img src="https://img.shields.io/badge/SSH-Enabled-success?style=for-the-badge"> <img src="https://img.shields.io/badge/Platforms-IOS/NXOS-orange?style=for-the-badge"> <img src="https://img.shields.io/badge/Data-Dummy%20Only-purple?style=for-the-badge"> </div>
-🔥 Why CleanSwitch?
+---
 
-CleanSwitch provides a safe, repeatable and fully automated way to clean up VLANs, trunk ports and leftover DHCP artifacts across dozens of switches.
+## 1. Overview
 
-✔ No external config files
-✔ All management IPs stored inside the script
-✔ Automatic logging
-✔ Zero manual SSH interaction
+CleanSwitch provides an automated, reliable method for cleaning VLANs, trunk ports, and configuration artifacts across dozens of switches without manual SSH interaction.
 
-Fully automated. Fully auditable. Fully controlled.
+The script is:
+- fully automated
+- self-contained (no external files)
+- safe (dummy data only in repo)
+- auditable through generated logs
 
-✨ Core Features
-🟦 Connectivity
+---
 
-SSH automation using Posh-SSH
+## 2. Key Features
 
-Automatic detection of enable/privileged mode
+### 2.1 Connectivity
+- Automated SSH login using Posh-SSH
+- Automatic detection of privileged/enable mode
 
-🟧 VLAN & Port Cleanup
+### 2.2 VLAN & Port Cleanup
+- Removes specific VLANs (configurable in script)
+- Cleans trunk ports (g0/1, g0/2 + fallback)
 
-Removes specific VLANs (customizable)
+### 2.3 Logging & Safety
+- Running configuration saved automatically
+- Per-switch log files generated
+- Global summary log created
+- Only dummy IPs and credentials stored in GitHub version
 
-Cleans trunk ports (g0/1, g0/2 + fallback)
+---
 
-🟩 Safety & Logging
+## 3. Architecture
 
-Saves running configuration
-
-Per-switch log files
-
-Global summary log
-
-Uses dummy IPs & credentials in the public repo
-
-🧬 Architecture
+```
 CleanSwitch/
 │
-├── wipe_switches.ps1        # Main engine (logic + IP list + SSH handling)
+├── wipe_switches.ps1         # Main script (logic, IP list, SSH operations)
 │
-├── outputs/                 # Auto-generated logs
+├── outputs/                  # Logs generated per switch
 │   └── README.md
 │
-├── LICENSE                  # MIT License
-├── CONTRIBUTING.md          # Optional contribution guidelines
-└── .gitignore               # Ignore logs, temp files, artifacts
+├── LICENSE                   # MIT License
+├── CONTRIBUTING.md           # Contribution guidelines (optional)
+└── .gitignore                # Ignores logs, temp files, artifacts
+```
 
-⚙️ Requirements
-Component	Minimum
-PowerShell	5.1 or 7+
-Module	Posh-SSH 3.0+
-OS	Windows / macOS / Linux (PS7)
+---
 
-Install SSH module:
+## 4. Requirements
 
+| Component | Minimum Version |
+|----------|-----------------|
+| PowerShell | 5.1 or 7+ |
+| Module | Posh-SSH 3.0+ |
+| OS | Windows / macOS / Linux (PowerShell 7) |
+
+Install the SSH module:
+
+```powershell
 Install-Module Posh-SSH -Scope CurrentUser -Force
+```
 
-🛠 Configuration
-Switch IPs
+---
 
-All management IPs are stored directly in wipe_switches.ps1:
+## 5. Configuration
 
+### 5.1 Switch IPs
+All management IPs are stored directly in the script:
+
+```powershell
 $IPs = @(
     "10.10.10.1",
     "10.10.10.2",
     "10.10.10.3"
 )
+```
 
-Credentials
+### 5.2 Credentials
+
+```powershell
 $User = "admin"
 $SecurePass = ConvertTo-SecureString "password" -AsPlainText -Force
 $Cred = [pscredential]::new($User, $SecurePass)
+```
 
+> Note: Only dummy data should be committed to the public repository.
 
-⚠️ Only dummy IPs and credentials should be committed to GitHub.
+---
 
-▶️ Running the Tool
+## 6. Running the Tool
 
-Run CleanSwitch:
+Execute CleanSwitch:
 
+```powershell
 powershell.exe -ExecutionPolicy Bypass -File .\wipe_switches.ps1
+```
 
+Logs will be stored in:
 
-Logs will be generated in:
-
+```
 outputs/
+```
 
-📄 Example Log
+---
+
+## 7. Example Log Output
+
+```
 [12:00:00] Connecting to 10.10.10.1...
 [12:00:01] Entered privileged mode
 [12:00:03] VLAN 1603 removed
-[12:00:04] Cleaned trunk ports
-[12:00:06] Saved configuration
+[12:00:04] Trunk ports cleaned
+[12:00:06] Configuration saved
 [OK] Completed: 10.10.10.1
+```
 
-🧭 Roadmap
+---
 
- Dry-run mode
+## 8. Roadmap
 
- Parallel device execution
+- Dry-run mode
+- Parallel execution support
+- Automatic platform detection
+- Multi-vendor compatibility
+- Optional Web UI for execution status
 
- Switch model auto-detection
+---
 
- Multi-vendor support
+## 9. License and Contributions
 
- Web UI for monitoring executions
+### License
+This project is distributed under the MIT License.
 
-<div align="center">
-🤝 Contributions
+### Contributions
+Pull requests, improvements and suggestions are welcome.
 
-PRs, improvements and suggestions are welcome.
-
-📜 License
-
-Released under the MIT License.
-
-⭐ If this project helps you, consider giving it a star.
-
-</div>
+⭐ If you find CleanSwitch useful, consider giving it a star.
