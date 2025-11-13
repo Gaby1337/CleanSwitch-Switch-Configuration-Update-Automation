@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/cleanswitch-banner.png" alt="CleanSwitch Banner" width="820">
-</p>
+
 
 <h1 align="center">CleanSwitch ⚡🧼</h1>
 <p align="center">
