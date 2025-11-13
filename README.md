@@ -237,9 +237,6 @@ The core blocks in your script:
 - Privilege helper: `Ensure-PrivExec`
 - Main worker: `Do-Device`
 - Loop over IPs: `foreach ($ip in $IPs) { Do-Device $ip }`
-
-The README is written to match **exactly this logic**.
-
 ---
 
 ## ⚙ Configuration
@@ -258,9 +255,6 @@ $PlainPass = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
 )
 ```
 
-> 🔐 In a public repo: replace `'admin'` and `'us'` with placeholders  
-> and keep the real values only in your private/local copy.
-
 ---
 
 ### 2️⃣ Target Switch IPs
@@ -274,10 +268,6 @@ $IPs = @(
     "127.0.0.2"
 )
 ```
-
-- In public GitHub, these `127.x.x.x` values act as **dummy examples**.
-- In your local/private copy, replace them with your real management IPs, e.g.:
-
 ```powershell
 $IPs = @(
     "10.32.55.11",
