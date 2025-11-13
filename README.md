@@ -1,91 +1,51 @@
-# ⚡ CleanSwitch — Switch Configuration Update Automation
+<p align="center">
+  <img src="assets/cleanswitch-banner.png" alt="CleanSwitch Banner" width="720">
+</p>
 
-PowerShell-based automation for bulk VLAN cleanup and switch configuration updates over SSH.
+<h1 align="center">CleanSwitch 🧼⚡</h1>
+<p align="center">
+  VLAN exorcism for tired network engineers.<br/>
+  Bulk cleanup of a single VLAN across dozens of switches, powered by PowerShell + SSH.
+</p>
 
-![status](https://img.shields.io/badge/status-active-brightgreen)
-![tech](https://img.shields.io/badge/powershell-automation-blue)
-![license](https://img.shields.io/badge/license-MIT-green)
-
----
-
-## 📚 Table of Contents
-- [Overview](#-overview)
-- [Features](#-features)
-- [How It Works](#-how-it-works)
-- [Repository Structure](#-repository-structure)
-- [Requirements](#-requirements)
-- [Configuration](#-configuration)
-- [Usage](#-usage)
-- [Output & Logging](#output--logging)
-- [Security Notes](#-security-notes)
-- [Roadmap / Ideas](#-roadmap--ideas)
-- [License](#-license)
+<p align="center">
+  <img src="https://img.shields.io/badge/PowerShell-5.1+-blue" />
+  <img src="https://img.shields.io/badge/SSH-automation-in_progress" />
+  <img src="https://img.shields.io/badge/Scope-VLAN%20cleanup-orange" />
+</p>
 
 ---
 
-## 🔎 Overview
+## 🧠 Concept
 
-**CleanSwitch** is a PowerShell-based automation script designed for bulk VLAN cleanup and switch configuration updates across multiple network devices via SSH.
+You have 50+ switches.  
+One cursed VLAN that must disappear from everywhere.  
+You don’t want to click through each device like it’s 2004.
 
-Use this script when you need to:
-- Remove a VLAN from many switches at once  
-- Clean trunk interfaces where the VLAN is allowed  
-- Disable DHCP snooping for a specific VLAN  
-- Perform pre/post-change validation  
-- Generate per-switch logs for documentation or troubleshooting  
+**CleanSwitch** is a tiny, brutal PowerShell script that:
 
-> This public example uses **VLAN 2999**.  
-> You can change it to any VLAN ID in your environment.
+- opens SSH sessions to a list of switches
+- checks if the target VLAN exists
+- removes it from config + trunks
+- disables DHCP snooping for that VLAN
+- saves *everything* it does into log files
 
----
-
-## ✨ Features
-
-- Bulk execution of configuration changes across multiple switches  
-- VLAN removal from:
-  - VLAN database  
-  - Access ports (optional)  
-  - Trunk interfaces  
-- DHCP snooping disable for target VLAN  
-- Pre-check and post-check validation  
-- SSH-based execution using Posh-SSH module  
-- Per-switch log files stored automatically  
-- Clean, safe template — **no real IPs or credentials included**  
+All IPs, credentials and VLAN IDs in this public repo are **dummy values** – it’s a template, not a leak.
 
 ---
 
-## ⚙️ How It Works
-
-For each switch in the list, the script:
-
-1. Connects via SSH using **Posh-SSH**  
-2. Enters privileged EXEC (`enable`) mode if necessary  
-3. Runs **pre-check commands**:
-   - `show vlan`
-   - `show interfaces trunk`
-   - `show ip dhcp snooping`
-4. Removes VLAN 2999 (or your VLAN) from:
-   - VLAN table  
-   - trunk port `allowed vlan` lists  
-5. Disables DHCP snooping on that VLAN  
-6. Runs **post-check commands** for verification  
-7. Saves all output to `outputs/DEVICE-IP.txt`  
-
----
-
-## 📁 Repository Structure
+## 🗺 Architecture (ASCII style)
 
 ```text
-CleanSwitch-Switch-Configuration-Update-Automation/
-│
-├── scripts/
-│   └── wipe_switches.ps1               # Main automation script
-│
-├── config/
-│   └── switch_list.example.txt         # Example switch list (template only)
-│
-├── outputs/                            # Auto-generated logs (ignored by Git)
-│
-├── .gitignore
-├── LICENSE
-└── README.md
++-------------------------+
+|   IP list (lab / prod)  |
++-----------+-------------+
+            |
+            v
+  +---------------------+      SSH       +----------------------+
+  |  wipe_switches.ps1  |  ---------->   |  Switch stack / LAB  |
+  |  (PowerShell 5.1)   |                |  IOS / NX-OS / etc   |
+  +---------------------+                +----------------------+
+            |
+            v
+   outputs\*.txt   +   run_YYYYMMDD_HHMMSS.log
