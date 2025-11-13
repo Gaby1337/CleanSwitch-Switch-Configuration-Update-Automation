@@ -15,6 +15,10 @@
 
 ---
 
+<p align="center">
+  <img src="assets/demo-session.png" width="720"/>
+</p>
+
 ## ✨ Concept
 
 You have 50+ switches.  
@@ -52,9 +56,4 @@ All IPs, VLANs and credentials here are **dummy values** — this is a clean tem
     run_YYYYMMDD_HHMMSS.log
 
 
-🚀 Quickstart
-
-<p align="center">
-  <img src="assets/demo-session.png" width="720"/>
-</p>
 
