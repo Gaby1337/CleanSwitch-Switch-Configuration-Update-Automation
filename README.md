@@ -51,6 +51,6 @@ All IPs, VLANs and credentials here are **dummy values** — this is a clean tem
     outputs/<device>_timestamp.txt
     run_YYYYMMDD_HHMMSS.log
 
-    git clone https://github.com/YOUR-USER/CleanSwitch-Automated-VLAN-Purge.git
-cd CleanSwitch-Automated-VLAN-Purge
+
+🚀 Quickstart
 
