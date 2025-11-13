@@ -1,228 +1,422 @@
 <h1 align="center">
-  <img src="https://img.icons8.com/fluency/96/console.png" width="90"><br>
   <b>CleanSwitch ⚡</b>
 </h1>
 
 <p align="center">
-  <i>Next‑generation PowerShell automation for orchestrated VLAN cleanup on Layer 2 switches via SSH</i>
+  Orchestrated VLAN cleanup on Layer 2 switches via PowerShell + SSH (Posh-SSH)
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/PowerShell-5.1%2B-3178C6?style=for-the-badge&logo=powershell&logoColor=white">
   <img src="https://img.shields.io/badge/Tested%20On-PSVersion%205.1.20348.4163-success?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Switch%20Environment-Layer%202-orange?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Transport-SSH%20Automation-0FA958?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Security-No%20Real%20Data-purple?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Verified-Automation%20Framework-brightgreen?style=for-the-badge&logo=vercel&logoColor=white">
+  <img src="https://img.shields.io/badge/Switch%20Type-Layer%202-orange?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Transport-SSH%20(via%20Posh--SSH)-0FA958?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Security-No%20Real%20IPs%20or%20Passwords-purple?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Verified-Automation%20Framework-brightgreen?style=for-the-badge">
 </p>
 
 ---
 
-<div align="center">
-<img src="https://img.icons8.com/external-flatart-icons-outline-flatarticons/128/external-network-administrator-it-flatart-icons-outline-flatarticons.png" width="110"><br>
-<h3>“One script. Unlimited switches. Full automation.”</h3>
-</div>
+## 📚 Table of Contents
+
+- [Overview](#-overview)
+- [What the script actually does](#-what-the-script-actually-does)
+- [Architecture & Flow Diagram](#-architecture--flow-diagram)
+- [Requirements](#-requirements)
+- [Script Structure](#-script-structure)
+- [Configuration](#-configuration)
+  - [Credentials](#1-credentials)
+  - [Target Switch IPs](#2-target-switch-ips)
+  - [VLAN and interfaces](#3-vlan-and-interfaces)
+- [How to Run](#-how-to-run)
+- [Logging & Output](#-logging--output)
+- [Best Practices & Safety](#-best-practices--safety)
+- [Limitations](#-limitations)
+- [Roadmap](#-roadmap)
+- [License](#-license)
+- [Contributions](#-contributions)
 
 ---
 
-# 🌟 CleanSwitch – Advanced Overview
+## 🚀 Overview
 
-CleanSwitch is a **premium-grade PowerShell automation framework** designed to remove VLANs across **multiple Layer 2 switches**, modify trunk ports, wipe DHCP snooping entries, save configuration changes, and log everything — fully automatically.
+`wipe_switches.ps1` is a **single-file PowerShell script** that performs a **bulk, scripted cleanup of VLAN 12** on multiple **Layer 2 switches** using SSH (via the `Posh-SSH` module).
 
-Perfect for:
-- ISPs  
-- Datacenters  
-- Corporations  
-- Network operations centers (NOC)  
-- Mass switch maintenance  
+It is designed to:
 
-This framework has been **tested** and validated on:
+- Apply the **same procedure** to every switch in a list
+- Use **IOS-style CLI** over SSH
+- Remove **VLAN 12** and related configuration from:
+  - VLAN database
+  - Trunk ports `g0/1` and `g0/2`
+  - DHCP snooping configuration
+- Save the running configuration
+- Generate logs per device + a master run log
 
-```
+The script has been **tested** on:
+
+```powershell
 PSVersionTable
+
 Name                           Value
 ----                           -----
 PSVersion                      5.1.20348.4163
 ```
 
+> 🔐 All values inside this public version (IP addresses, credentials) are placeholders.
+
 ---
 
-# 🧠 How CleanSwitch Works (High‑Level Flow)
+## 🔍 What the script actually does
 
+For each IP in `$IPs`, the script:
+
+1. **Creates an SSH session** using `New-SSHSession` (Posh-SSH)
+2. Opens an **interactive shell** using `New-SSHShellStream`
+3. **Ensures privileged EXEC mode** with `Ensure-PrivExec`:
+   - Sends `terminal length 0`
+   - If the prompt is not `#`, sends `enable`
+   - If asked for password, sends the same password used for SSH (`$PlainPass`)
+4. Runs **pre-check commands** (read-only):
+
+   ```text
+   show vlan id 12
+   show running-config interface g0/1
+   show ip dhcp snooping
+   ```
+
+5. Applies the **configuration for VLAN 12**:
+
+   - Remove VLAN 12 from VLAN database:
+     ```text
+     configure terminal
+     no vlan 12
+     end
+     ```
+   - Cleanup VLAN 12 from trunk interfaces:
+     ```text
+     configure terminal
+     interface g0/1
+     switchport trunk allowed vlan remove 12
+     interface g0/2
+     switchport trunk allowed vlan remove 12
+     end
+     ```
+   - Remove VLAN 12 from DHCP snooping:
+     ```text
+     configure terminal
+     no ip dhcp snooping vlan 12
+     end
+     ```
+
+   - Save configuration:
+     ```text
+     write memory
+     ```
+
+6. Runs **post-check commands** (same as pre-checks) to verify the state:
+
+   ```text
+   show vlan id 12
+   show running-config interface g0/1
+   show ip dhcp snooping
+   ```
+
+7. If the switch **does not accept short interface names** (`g0/1`, `g0/2`) and responds with:
+
+   - `Invalid input detected`
+   - `% Ambiguous`
+   - `Incomplete command`
+
+   then the script automatically retries with **long interface names**:
+
+   ```text
+   configure terminal
+   interface GigabitEthernet0/1
+   switchport trunk allowed vlan remove 12
+   interface GigabitEthernet0/2
+   switchport trunk allowed vlan remove 12
+   end
+   show running-config interface GigabitEthernet0/1
+   ```
+
+8. Writes **all collected output** to a per-device file and logs success or error in a master log.
+
+---
+
+## 🧱 Architecture & Flow Diagram
+
+The logic in your script matches the following flow:
+
+```text
++---------------------------------------------------------+
+|                    wipe_switches.ps1                    |
++---------------------------+-----------------------------+
+                            |
+                            v
+                 Import / Install Posh-SSH
+                            |
+                            v
+                 Prepare credentials & $IPs
+                            |
+                            v
+                  Ensure .\outputs directory
+                            |
+                            v
+               Create master log file ($Log)
+                            |
+                            v
+                 For each $Ip in $IPs array
++---------------------------------------------------------+
+|                         Do-Device                       |
++---------------------------+-----------------------------+
+                            |
+                            v
+           New-SSHSession (AcceptKey, Timeout 12s)
+                            |
+                            v
+              New-SSHShellStream (interactive)
+                            |
+                            v
+                     Ensure-PrivExec
+        (terminal length 0, enable, password if needed)
+                            |
+                            v
+                    PRE-CHECK PHASE
+    - show vlan id 12
+    - show running-config interface g0/1
+    - show ip dhcp snooping
+                            |
+                            v
+                 CONFIGURATION PHASE
+    - no vlan 12
+    - remove vlan 12 from g0/1 & g0/2 trunks
+    - no ip dhcp snooping vlan 12
+    - write memory
+                            |
+                            v
+                    POST-CHECK PHASE
+    - same show commands as pre-check
+                            |
+                            v
+        FALLBACK (if CLI error on g0/1 & g0/2)
+    - use GigabitEthernet0/1 and 0/2 instead
+                            |
+                            v
+                    LOG & CLEANUP
+    - Write full $out to .\outputs\<IP>_timestamp.txt
+    - Log OK/ERROR to $Log
+    - Remove-SSHSession
 ```
- ┌────────────────────────────────────────────────────┐
- │                    CleanSwitch.ps1                 │
- └───────────────────┬────────────────────────────────┘
-                     │
-                     ▼
-         Load Credentials (username + password)
-                     │
-                     ▼
-              Load Management IPs
-                     │
-                     ▼
-            For each switch in $IPs:
-                     │
-                     ▼
-            SSH Login → Enter ENABLE mode
-                     │
-                     ▼
-           Pre‑Checks (VLAN, DHCP, Interfaces)
-                     │
-                     ▼
-        Remove VLAN → Clean Trunks → Remove Snooping
-                     │
-                     ▼
-                 write memory
-                     │
-                     ▼
-                 Post Checks
-                     │
-                     ▼
-                 Save Logs
-```
+
+This diagram reflects exactly how your current PowerShell code behaves.
 
 ---
 
-# 🔧 **Where YOU Must Edit the Script**
+## 📦 Requirements
 
-The following sections inside your script **must be customized by the user**.
+| Component  | Details                                                  |
+|-----------|----------------------------------------------------------|
+| PowerShell | 5.1+ (tested on PSVersion 5.1.20348.4163)               |
+| Module    | `Posh-SSH` (installed automatically if not present)      |
+| Switches  | IOS-style CLI devices with VLAN + trunk + DHCP snooping  |
+| Access    | SSH reachable, valid credentials, `enable` permissions   |
+| OS        | Windows 10/11 / Windows Server with PowerShell 5.1       |
 
 ---
 
-# 1️⃣ Credentials – *User + Password for Switches*  
-📌 **Modify these lines inside your script:**
+## 🧬 Script Structure
+
+The core blocks in your script:
+
+- `Install-Module` / `Import-Module Posh-SSH`
+- Credentials: `$User`, `$SecurePass`, `$Cred`, `$PlainPass`
+- IP list: `$IPs = @("127.0.0.1","127.0.0.2")`
+- Output directory & master log: `$OutDir`, `$Log`
+- Helper function: `Send-Line`
+- Privilege helper: `Ensure-PrivExec`
+- Main worker: `Do-Device`
+- Loop over IPs: `foreach ($ip in $IPs) { Do-Device $ip }`
+
+The README is written to match **exactly this logic**.
+
+---
+
+## ⚙ Configuration
+
+### 1️⃣ Credentials
+
+From your script:
 
 ```powershell
-# ===========================
-# SWITCH CREDENTIALS (EDIT)
-# ===========================
-$User = '<USERNAME_DE_LOGIN_LA_SWITCH>'
-$SecurePass = ConvertTo-SecureString '<PAROLA_DE_LA_SWITCH>' -AsPlainText -Force
+# Creds
+$User = 'admin'
+$SecurePass = ConvertTo-SecureString 'us' -AsPlainText -Force
 $Cred = [pscredential]::new($User, $SecurePass)
-
-# Required for enable mode (IOS-style prompt)
 $PlainPass = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
     [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePass)
 )
 ```
 
-✔ Introduci user + parolă aici  
-✔ Parola este convertită automat în SecureString  
-✔ Folosită la login + enable mode  
+> 🔐 In a public repo: replace `'admin'` and `'us'` with placeholders  
+> and keep the real values only in your private/local copy.
 
 ---
 
-# 2️⃣ Management IPs – *List of all switches to process*
+### 2️⃣ Target Switch IPs
 
-📌 **EDIT this block to match your network:**
+Exactly as in your script:
 
 ```powershell
-# ===========================
-# MANAGEMENT IPs (EDIT)
-# ===========================
+# TOATE IP-URILE
 $IPs = @(
-    "10.32.55.11",
-    "10.32.55.14",
-    "10.32.55.21",
-    "10.32.55.22"
+    "127.0.0.1",
+    "127.0.0.2"
 )
 ```
 
-✔ Adaugi / ștergi oricâte IP-uri  
-✔ Execută comenzi pe toate automat  
+- In public GitHub, these `127.x.x.x` values act as **dummy examples**.
+- In your local/private copy, replace them with your real management IPs, e.g.:
+
+```powershell
+$IPs = @(
+    "10.32.55.11",
+    "10.32.55.14",
+    "10.32.55.21"
+)
+```
 
 ---
 
-# 3️⃣ VLAN Deconfiguration – *The VLAN to remove*
+### 3️⃣ VLAN and interfaces
 
-📌 **EDIT all occurrences of the VLAN ID:**
+The script is **hard-coded for VLAN 12**, and interfaces:
 
-```powershell
-# ===========================
-# V-L-A-N   T-O   R-E-M-O-V-E
-# ===========================
+- Short form:
+  - `g0/1`
+  - `g0/2`
+- Long form fallback:
+  - `GigabitEthernet0/1`
+  - `GigabitEthernet0/2`
+
+If you want to target another VLAN, search for:
+
+```text
+vlan 12
 no vlan 12
 switchport trunk allowed vlan remove 12
 no ip dhcp snooping vlan 12
 show vlan id 12
 ```
 
-✏️ **Schimbă "12" cu VLAN-ul tău real**  
-🛡️ Recomandare: Testează întâi pe 1 switch  
+and replace `12` with your desired VLAN ID **everywhere** in the script.
 
 ---
 
-# 📝 Example of Advanced Log Output (with REALISTIC dummy data)
+## ▶ How to Run
 
-```
-10.32.55.11_20251113_182200.txt
-10.32.55.14_20251113_182204.txt
-10.32.55.21_20251113_182207.txt
-10.32.55.22_20251113_182210.txt
+1. Make sure you have PowerShell 5.1 and internet access (first run installs `Posh-SSH`).
+2. Save `wipe_switches.ps1` and this `README.md` in the same folder.
+3. Open a PowerShell session:
 
-[18:22:01] 10.32.55.11 OK (VLAN removed successfully)
-[18:22:03] 10.32.55.14 ERROR: SSH authentication failed
-[18:22:05] 10.32.55.21 OK (Trunks cleaned)
-[18:22:07] 10.32.55.22 OK (DHCP snooping removed)
-```
+   ```powershell
+   cd C:\Path\To\CleanSwitch
+   ```
 
-✔︎ Arată exact ce s-a întâmplat  
-✔︎ Fiecare dispozitiv are log separat  
-✔︎ Rezumat global în fișier .log  
+4. Optionally unblock the script if downloaded from internet:
 
----
+   ```powershell
+   Unblock-File .\wipe_switches.ps1
+   ```
 
-# 🔥 Key Features (Enhanced)
+5. Execute:
 
-| Feature | Description |
-|--------|-------------|
-| **Full Automation** | No manual CLI work — everything over SSH |
-| **Layer 2 Ready** | Optimized for VLAN/port operations |
-| **Enable Mode Smart Logic** | Detects password prompts automatically |
-| **Interface Auto-Fallback** | Supports g0/1 + GigabitEthernet0/1 |
-| **Verified Automation Badge** | Quality standard for automation frameworks |
-| **Structured Logging** | Full output per switch + main summary |
-| **Zero Sensitive Data** | Public repo contains no real IPs or passwords |
+   ```powershell
+   .\wipe_switches.ps1
+   ```
 
 ---
 
-# ▶️ Usage
+## 📂 Logging & Output
 
-```powershell
-cd C:\Path\To\CleanSwitch
-.\wipe_switches.ps1
-```
+Your script produces:
+
+1. **Per-device output files** in `.\outputs\`:
+
+   Pattern:
+
+   ```text
+   <IP>_yyyyMMdd_HHmmss.txt
+   ```
+
+   Example with more realistic IPs:
+
+   ```text
+   10.32.55.11_20251113_182200.txt
+   10.32.55.14_20251113_182204.txt
+   10.32.55.21_20251113_182207.txt
+   ```
+
+2. **Master run log** in the script folder:
+
+   ```text
+   run_20251113_182159.log
+   ```
+
+   Example content (matching your `Tee-Object` format):
+
+   ```text
+   [18:22:01] 10.32.55.11 OK -> .\outputs\10.32.55.11_20251113_182200.txt
+   [18:22:03] 10.32.55.14 ERROR: SSH connection failed
+   [18:22:05] 10.32.55.21 OK -> .\outputs\10.32.55.21_20251113_182207.txt
+   ```
 
 ---
 
-# 🛡 Best Practices
+## 🛡 Best Practices & Safety
 
-✔ Rule #1: Test on one switch first  
-✔ Rule #2: Verifică logurile după execuție  
-✔ Rule #3: Păstrează versiunea cu date reale în privat  
-✔ Rule #4: Fă backup înainte de cleanup masiv  
-
----
-
-# 🧭 Roadmap
-
-- Multi-VLAN cleanup  
-- Multi-threading execution  
-- CSV import for IPs  
-- Dry-run simulation mode  
-- Enhanced error mapping  
+- Start with **one test switch** in `$IPs` before bulk runs.
+- Take a **backup** (e.g. `copy running-config tftp:`) before first production run.
+- Review at least a few `.\outputs\*.txt` files after every run.
+- Keep your **real `$User`, `$SecurePass` and `$IPs` only in private copies** of the script.
 
 ---
 
-# 📝 License
+## ⚠ Limitations
 
+- Designed for **a single VLAN (12) at a time**.
+- Only cleans:
+  - VLAN database
+  - Trunk ports `g0/1`, `g0/2` (and long forms)
+  - DHCP snooping for that VLAN
+- Assumes IOS-like CLI; other OS types may require adjustment.
+- No dry-run mode (all changes are real once config phase begins).
+
+---
+
+## 🗺 Roadmap (Ideas)
+
+- Multi-VLAN cleanup (list of VLANs instead of a single ID)
+- Import `$IPs` from CSV
+- Parallel execution (run multiple switches in jobs)
+- Dry-run / “check-only” mode
+- Optional additional pre/post checks (e.g. `show spanning-tree`)
+
+---
+
+## 📜 License
+
+```text
 MIT License
+```
 
 ---
 
-# 🤝 Contributions
+## 🤝 Contributions
 
-PRs & Issues welcome.  
-If you're using CleanSwitch and love it — **leave a ⭐ on GitHub!**
+If you use CleanSwitch and improve it:
 
+- Open an **Issue** with ideas or problems
+- Submit a **Pull Request** with enhancements
+
+A ⭐ on GitHub is always appreciated if this script saves you time on bulk VLAN cleanup.
