@@ -1,51 +1,54 @@
-![Uploading image.png…]()
-
-
-<h1 align="center">CleanSwitch 🧼⚡</h1>
 <p align="center">
-  VLAN exorcism for tired network engineers.<br/>
-  Bulk cleanup of a single VLAN across dozens of switches, powered by PowerShell + SSH.
+  <img src="assets/cleanswitch-banner.png" alt="CleanSwitch Banner" width="820">
+</p>
+
+<h1 align="center">CleanSwitch ⚡🧼</h1>
+<p align="center">
+  Automated VLAN cleanup across dozens of switches using PowerShell + SSH.<br>
+  A clean, fast and safe template — with no real IPs or credentials.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/PowerShell-5.1+-blue" />
-  <img src="https://img.shields.io/badge/SSH-automation-in_progress" />
-  <img src="https://img.shields.io/badge/Scope-VLAN%20cleanup-orange" />
+  <img src="https://img.shields.io/badge/PowerShell-5.1+-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/SSH-automation-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/VLAN-cleanup-orange?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Safe-public_template-purple?style=for-the-badge" />
 </p>
 
 ---
 
-## 🧠 Concept
+## ✨ Concept
 
 You have 50+ switches.  
-One cursed VLAN that must disappear from everywhere.  
-You don’t want to click through each device like it’s 2004.
+One cursed VLAN that must disappear everywhere.  
+Clicking through each device manually? Not today.
 
-**CleanSwitch** is a tiny, brutal PowerShell script that:
+**CleanSwitch** is a compact PowerShell automation that:
 
-- opens SSH sessions to a list of switches
-- checks if the target VLAN exists
-- removes it from config + trunks
-- disables DHCP snooping for that VLAN
-- saves *everything* it does into log files
+- opens SSH sessions to a list of switches  
+- checks if the target VLAN exists  
+- removes it from config + trunk ports  
+- disables DHCP snooping  
+- writes memory  
+- logs *everything* into per-device files  
 
-All IPs, credentials and VLAN IDs in this public repo are **dummy values** – it’s a template, not a leak.
+All IPs, VLANs and credentials here are **dummy values** — this is a clean template, not real production data.
 
 ---
 
-## 🗺 Architecture (ASCII style)
+## 🧠 Architecture
 
 ```text
-+-------------------------+
-|   IP list (lab / prod)  |
-+-----------+-------------+
-            |
-            v
++---------------------------+
+|   Switch IP list (demo)   |
++-------------+-------------+
+              |
+              v
   +---------------------+      SSH       +----------------------+
   |  wipe_switches.ps1  |  ---------->   |  Switch stack / LAB  |
   |  (PowerShell 5.1)   |                |  IOS / NX-OS / etc   |
   +---------------------+                +----------------------+
-            |
-            v
-
-
+              |
+              v
+    outputs/<device>_timestamp.txt
+    run_YYYYMMDD_HHMMSS.log
