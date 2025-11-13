@@ -54,3 +54,7 @@ All IPs, VLANs and credentials here are **dummy values** — this is a clean tem
 
 🚀 Quickstart
 
+<p align="center">
+  <img src="assets/demo-session.png" width="720"/>
+</p>
+
