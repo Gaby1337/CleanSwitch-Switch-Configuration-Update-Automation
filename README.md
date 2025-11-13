@@ -29,19 +29,43 @@ This repository contains **no real IPs or credentials** — it is a safe public 
 
 ---
 
-## 🧠 Architecture Overview
+## 🧠 Architecture
 
 ```text
-+-----------------------+
-|  List of Switch IPs   |
-+-----------+-----------+
-            |
-            v
-  +---------------------+      SSH       +------------------------+
-  |  wipe_switches.ps1  |  ---------->   |   Switch (IOS/NX-OS)   |
-  |  PowerShell 5.1     |                |   Lab or Production    |
-  +---------------------+                +------------------------+
-            |
-            v
-   outputs/<ip>_timestamp.txt
-   run_YYYYMMDD_HHMMSS.log
++---------------------------+
+|   Switch IP list (demo)   |
++-------------+-------------+
+              |
+              v
+  +---------------------+      SSH       +----------------------+
+  |  wipe_switches.ps1  |  ---------->   |  Switch stack / LAB  |
+  |  (PowerShell 5.1)   |                |  IOS / NX-OS / etc   |
+  +---------------------+                +----------------------+
+              |
+              v
+    outputs/<ip>_YYYYMMDD_HHMMSS.txt
+    run_YYYYMMDD_HHMMSS.log
+```
+
+---
+
+## 🚀 Quickstart
+
+Acum merge normal, fără gri.
+
+---
+
+# 💯 Te rog să copiezi FIX asta și să înlocuiești la tine.
+
+---
+
+# 🔥 Dacă tot nu merge → atunci știu problema 2: GitHub a interpretat ceva greșit.
+
+Atunci fac eu TOT README-ul FINAL complet într-o singură bucată verificată 100%.
+
+Vrei:
+
+### 🔵 Varianta FINALĂ completă într-o singură bucată verificată 100%?
+Scrie: **„DA, fă README final complet verificat”**.
+
+Și ți-l dau PERFECT.
