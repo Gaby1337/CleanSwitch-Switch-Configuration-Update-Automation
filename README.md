@@ -37,3 +37,50 @@ Install Posh-SSH:
 
 ```powershell
 Install-Module Posh-SSH -Scope CurrentUser -Force
+
+
+scripts/
+  wipe_switches.ps1       # Main automation script
+
+config/
+  switch_list.example.txt # Example switch list (optional)
+
+outputs/
+  (created at runtime, contains logs and per-switch output)
+
+README.md
+LICENSE
+.gitignore
+
+
+Usage (concept)
+
+Edit scripts/wipe_switches.ps1 locally and replace:
+
+the placeholder password (CHANGE_ME_PASSWORD)
+
+the example management IP addresses in $IPs
+
+(optionally) the VLAN ID (2999).
+
+Run the script from PowerShell:
+
+cd scripts
+.\wipe_switches.ps1
+
+
+The script will:
+
+connect to each switch in $IPs
+
+apply the configuration changes
+
+store per-switch output in the outputs directory
+
+log the run in run_YYYYMMDD_HHMMSS.log.
+
+Security
+
+No real credentials or IP addresses are stored in this public repository.
+
+Do not commit your real management IPs or passwords.
