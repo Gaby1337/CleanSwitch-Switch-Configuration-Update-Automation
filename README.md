@@ -1,71 +1,62 @@
-<h1 align="center">⚡ CleanSwitch – Automated Switch Configuration Cleanup</h1> <p align="center"> A fully automated PowerShell tool for bulk VLAN and configuration cleanup across multiple switches via SSH. </p> <p align="center"> <img src="https://img.shields.io/badge/Automation-PowerShell%205.1+-blue?style=for-the-badge"> <img src="https://img.shields.io/badge/Protocol-SSH-green?style=for-the-badge"> <img src="https://img.shields.io/badge/Switching-IOS/NXOS-orange?style=for-the-badge"> <img src="https://img.shields.io/badge/Safe-Dummy%20Data-purple?style=for-the-badge"> </p>
-🚀 Overview
+🌩️ CleanSwitch
+Automated Switch Configuration Cleanup via PowerShell + SSH
+<p align="center"> <img src="https://img.shields.io/badge/PowerShell-5.1+-blue?style=for-the-badge"> <img src="https://img.shields.io/badge/Protocol-SSH-green?style=for-the-badge"> <img src="https://img.shields.io/badge/Switching-IOS/NXOS-orange?style=for-the-badge"> <img src="https://img.shields.io/badge/Data-Dummy%20Only-purple?style=for-the-badge"> </p>
+📘 Overview
 
-CleanSwitch is a standalone PowerShell automation script designed to safely clean up VLANs, trunk ports, and related configuration items on multiple network switches.
+CleanSwitch is a fully automated PowerShell tool for bulk VLAN and configuration cleanup
+across multiple switches — safely, consistently, and without manual SSH interaction.
 
-It requires zero external files:
-✔ All management IPs are stored directly inside the script
-✔ Credentials are embedded using secure strings
-✔ Logging is fully automatic
+✔ No external files
+✔ All management IPs inside the script
+✔ Secure credentials using SecureString
+✔ Automatic per-switch logs
 
-Ideal for environments where fast, repeatable switch cleanup is needed without manual SSH interaction.
+✨ Features
 
-📦 Features
+🔐 Automatic SSH login (Posh-SSH)
 
-🔑 Auto-login to switches using SSH (Posh-SSH)
+🔧 Auto-detect privileged/enable mode
 
-⚙️ Detects enable/privileged mode
+🧹 Remove chosen VLAN(s)
 
-🧹 Removes specific VLANs (customizable)
+🔌 Clean trunk ports (g0/1, g0/2 + fallback)
 
-🔌 Cleans trunk ports (g0/1, g0/2 + fallback)
+💾 Save running configuration
 
-🧾 Saves running config to memory
+📄 Generate per-switch logs
 
-📋 Generates detailed logs per switch
+📊 Create a global summary log
 
-📝 Creates a global execution log
+🔒 Uses ONLY dummy data in the GitHub version
 
-🛡 Uses dummy IPs and dummy credentials in repo (no sensitive data)
-
-📁 Architecture
+🧱 Architecture
 CleanSwitch/
 │
-├── wipe_switches.ps1        → Main automation script (IPs & logic inside)
+├── wipe_switches.ps1     → Main automation script (includes IPs + logic)
 │
-├── outputs/                 → Auto-generated logs per switch
+├── outputs/              → Auto-generated logs for each switch
 │   └── README.md
 │
-├── LICENSE                  → MIT License
-├── CONTRIBUTING.md          → (Optional: How to contribute)
-└── .gitignore               → Ignore logs, backups, etc.
+├── LICENSE               → MIT License
+├── CONTRIBUTING.md       → Contribution guidelines (optional)
+└── .gitignore            → Ignore logs, temp files, backups
 
-🔧 Requirements
+⚙️ Requirements
 
 PowerShell 5.1 or PowerShell 7+
 
-Posh-SSH module v3.0+
+Posh-SSH 3.0+
 
-Windows, Linux or macOS supported (via PowerShell 7)
+Windows, Linux or macOS (via PS7)
 
-🛠 Installation
-
-Install the SSH module:
+Install SSH module:
 
 Install-Module Posh-SSH -Scope CurrentUser -Force
 
+🛠 Configuration
 
-Clone the repository:
+All switch IPs are defined inside the script:
 
-git clone https://github.com/Gaby1337/CleanSwitch-Switch-Configuration-Update-Automation
-cd CleanSwitch-Switch-Configuration-Update-Automation
-
-🖥 Configuration
-🔌 Management IPs
-
-All switch management IPs are stored directly inside the script:
-
-# Switch IPs (dummy data for GitHub)
 $IPs = @(
     "10.10.10.1",
     "10.10.10.2",
@@ -73,88 +64,62 @@ $IPs = @(
 )
 
 
-Replace these IPs with your real management IPs before running in production.
-
-🔐 Credentials
-
-Credentials are stored in secure string format:
+Credentials:
 
 $User = "admin"
-$SecurePass = ConvertTo-SecureString "yourpassword" -AsPlainText -Force
+$SecurePass = ConvertTo-SecureString "password" -AsPlainText -Force
 $Cred = [pscredential]::new($User, $SecurePass)
 
 
-⚠️ Never commit real passwords or customer data to GitHub.
+⚠️ Do NOT commit real IPs or real passwords. Only dummy data.
 
-▶️ Running CleanSwitch
-
-Execute the script:
-
+▶️ Usage
 powershell.exe -ExecutionPolicy Bypass -File .\wipe_switches.ps1
 
 
-The tool will:
+During execution, the script will:
 
 Connect to each switch
 
-Enter enable/privileged mode
+Enter privileged mode
 
-Remove the configured VLAN
+Remove VLAN
 
-Clean trunk ports & artifacts
+Clean trunk ports
 
-Save config
+Save configuration
 
-Generate logs
+Log actions
 
-Logs will automatically appear inside the outputs/ folder.
+Logs appear automatically in:
 
-📜 Example Logs
+outputs/
 
-Example entries generated:
+📄 Sample Log Output
+[12:00:00] Connecting to 10.10.10.1...
+[12:00:01] Entered privileged mode
+[12:00:03] VLAN 1603 removed
+[12:00:04] Cleaned trunk ports
+[12:00:06] Saved configuration
+[OK] Switch 10.10.10.1 completed
 
-[2025-01-01 12:00:00] Connecting to 10.10.10.1 ...
-[2025-01-01 12:00:02] Entered enable mode
-[2025-01-01 12:00:04] VLAN removed successfully
-[2025-01-01 12:00:05] Trunk ports cleaned
-[2025-01-01 12:00:08] Configuration saved
-[OK] Completed: 10.10.10.1
-
-🧪 Compatibility
-
-Tested on:
-
-Cisco IOS
-
-Cisco NX-OS
-
-Layer 2/3 enterprise switches
-
-Standard SSH configurations
-
-🧩 Roadmap
+📌 Roadmap
 
  Add Dry-Run mode
 
- Add parallel execution
+ Parallel execution
 
- Add custom VLAN selector
+ Auto-detect switch platform
 
- Add switch model autodetection
+ Custom VLAN selector
 
- Add multi-vendor templates
+ Multi-vendor profiles
 
 🤝 Contributing
 
-Contributions are welcome!
-Please check CONTRIBUTING.md for details.
+Contributions welcome!
+See CONTRIBUTING.md.
 
-📝 License
+📄 License
 
-This project is licensed under the MIT License.
-You may use, modify, and distribute freely — see LICENSE.
-
-⭐ Support the Project
-
-If you find this project useful, consider giving it a ⭐ on GitHub.
-Your feedback motivates further development.
+Released under the MIT License.
