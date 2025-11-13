@@ -70,4 +70,69 @@ For each switch in the device list, the script performs these actions:
 ---
 
 ## 📁 Repository Structure
+CleanSwitch-Switch-Configuration-Update-Automation/
+│
+├── scripts/
+│ └── wipe_switches.ps1 # Main automation script
+│
+├── config/
+│ └── switch_list.example.txt # Example list (template only)
+│
+├── outputs/ # Generated logs (empty in repo)
+│
+├── .gitignore
+├── LICENSE
+└── README.md
+
+You can freely adjust folder names and structure based on your environment.
+
+---
+
+## 🧩 Requirements
+
+- Windows PowerShell **5.1** or newer  
+- `Posh-SSH` PowerShell module  
+
+Install module:
+```powershell
+Install-Module Posh-SSH -Scope CurrentUser -Force
+
+🛠 Configuration
+
+Before running the script in a real environment:
+
+Open scripts/wipe_switches.ps1
+
+Change:
+
+VLAN ID from 2999 to what you need
+
+List of IPs ($IPs) → use your real switches
+
+Placeholder credentials (CHANGE_ME_PASSWORD, etc.)
+
+Configure your real switch list file:
+config/switch_list_prod.txt
+
+▶️ Usage
+
+Run from PowerShell:
+
+cd scripts
+.\wipe_switches.ps1
+
+The script will:
+
+Load device list
+
+Open SSH session per switch
+
+Apply cleanup actions
+
+Execute checks
+
+Generate logs in /outputs
+
+Produce a timestamped run log
+
 
