@@ -1,4 +1,6 @@
-
+<p align="center">
+  <img src="assets/cleanswitch-banner.png" alt="CleanSwitch Banner" width="820">
+</p>
 
 <h1 align="center">CleanSwitch ⚡🧼</h1>
 <p align="center">
@@ -14,8 +16,6 @@
 </p>
 
 ---
-
-
 
 ## ✨ Concept
 
@@ -52,8 +52,3 @@ All IPs, VLANs and credentials here are **dummy values** — this is a clean tem
               v
     outputs/<device>_timestamp.txt
     run_YYYYMMDD_HHMMSS.log
-    
-    ```
-
-
-
